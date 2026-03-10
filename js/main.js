@@ -97,24 +97,25 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ===== FUNGSI LOAD DATA =====
 async function loadComments() {
   const commentList = document.getElementById("commentList");
-  if (!commentList) return;
+  if (!commentList) return; // Keamanan jika elemen belum ada
 
   const { data, error } = await db
     .from("comments")
     .select("*")
-    .order("created_at", { ascending: false }); // Urutan terbaru dari database
+    .order("created_at", { ascending: false }); // Terbaru di atas
 
   if (error) {
     console.error("Gagal mengambil data:", error);
+    commentList.innerHTML = `<p class="text-red-400 text-center text-xs">Gagal memuat pesan.</p>`;
     return;
   }
 
+  // Bersihkan loading state
   commentList.innerHTML = "";
 
   if (data && data.length > 0) {
-    // Karena data sudah urut (Terbaru -> Terlama), kita masukkan satu-persatu ke bawah
     data.forEach((comment) => {
-      renderComment(comment, "bottom"); 
+      renderComment(comment);
     });
   } else {
     commentList.innerHTML = `<p class="text-center text-gray-400 text-sm py-10">Belum ada ucapan. Jadilah yang pertama!</p>`;
@@ -122,8 +123,7 @@ async function loadComments() {
 }
 
 // ===== FUNGSI RENDER KE HTML =====
-// Tambahkan parameter 'position' untuk menentukan mau ditaruh di atas atau bawah
-function renderComment(data, position = "bottom") {
+function renderComment(data) {
   const list = document.getElementById("commentList");
   if (!list) return;
 
@@ -149,11 +149,9 @@ function renderComment(data, position = "bottom") {
     </div>
   `;
 
-  if (position === "top") {
-    list.prepend(div); // Taruh di paling atas (untuk pesan baru)
-  } else {
-    list.appendChild(div); // Taruh di bawah (untuk load data lama)
-  }
+  // GUNAKAN appendChild
+  // Karena data pertama dari data.forEach sudah yang paling baru (hasil order ascending: false)
+  list.appendChild(div);
 }
 
 // ===== FUNGSI TAMBAH DATA =====
@@ -168,6 +166,14 @@ async function addWish(event) {
   const message = document.getElementById("message").value;
   const attendance = document.querySelector('input[name="attendance"]:checked')?.value || "Hadir";
 
+  // Kita buat objek data lokal untuk render instan
+  const commentData = { 
+    name, 
+    message, 
+    attendance, 
+    time: "Baru saja" // Label sementara sebelum di-refresh dari DB
+  };
+
   const { error } = await db
     .from("comments")
     .insert([{ name, message, attendance }]);
@@ -177,13 +183,31 @@ async function addWish(event) {
   } else {
     event.target.reset();
     
-    // Langsung render di posisi ATAS secara instan
-    const list = document.getElementById("commentList");
-    if (list.innerText.includes("Belum ada ucapan")) list.innerHTML = "";
+    // OPSI 1: Render manual ke posisi paling atas (Instan)
+    renderCommentAtTop(commentData); 
     
-    renderComment({ name, message, attendance, time: "Baru saja" }, "top"); 
+    // OPSI 2: Tetap panggil loadComments untuk sinkronisasi waktu asli dari DB
+    // await loadComments(); 
   }
 
   submitBtn.disabled = false;
   submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Ucapan';
 }
+
+// Fungsi pembantu agar bisa menaruh di atas khusus saat input baru
+function renderCommentAtTop(data) {
+  const list = document.getElementById("commentList");
+  if (!list) return;
+
+  // Hapus pesan "Belum ada ucapan" jika ini komentar pertama
+  if (list.innerText.includes("Belum ada ucapan")) {
+      list.innerHTML = "";
+  }
+
+  renderComment(data); // Memanggil fungsi render yang sudah kamu buat
+}
+
+// Pastikan dipanggil setelah semua HTML siap
+document.addEventListener("DOMContentLoaded", () => {
+  loadComments();
+});
