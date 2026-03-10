@@ -87,8 +87,8 @@ setInterval(updateCountdown, 1000);
 
 
 // ===== KONFIGURASI SUPABASE =====
-const SUPABASE_URL = "https://osytfkzawpftsktljurs.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_HK7k7M1TH9uWsnycuXZTmQ_5b-vsm1d";
+const SUPABASE_URL = "https://ecpzvlbrulxbhtwqqmub.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_jx0p00VOq4hKOkt1lcAxUQ_sbDojSJR";
 
 // Inisialisasi client
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -122,27 +122,35 @@ async function loadComments() {
 }
 
 // ===== FUNGSI RENDER KE HTML =====
-function renderComment(comment) {
-  const commentList = document.getElementById("commentList");
+function renderComment(data) {
+  const list = document.getElementById("commentList");
+  if (!list) return;
+
+  const div = document.createElement("div");
+  // Desain bubble chat yang lebih bersih untuk tema putih
+  div.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm animate-fade-in";
   
-  const commentHTML = `
-    <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm mb-2" data-aos="fade-up">
-      <div class="flex justify-between items-start mb-2">
-        <h4 class="font-bold text-[#1C0770] text-sm uppercase tracking-wide">${comment.name}</h4>
-        <span class="text-[10px] px-2 py-1 rounded-full bg-[#1C0770]/10 text-[#1C0770] font-semibold">
-          ${comment.attendance || 'Hadir'}
-        </span>
+  div.innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-[#1C0770]/10 flex items-center justify-center text-[#1C0770] text-xs font-bold">
+          ${data.name.charAt(0).toUpperCase()}
+        </div>
+        <h4 class="font-bold text-[#1C0770] text-sm">${data.name}</h4>
       </div>
-      <p class="text-gray-600 text-sm leading-relaxed italic">
-        "${comment.message}"
-      </p>
-      <small class="text-[9px] text-gray-400 mt-3 block">
-        ${new Date(comment.created_at).toLocaleString('id-ID')}
-      </small>
+      <span class="text-[10px] font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full border border-gray-100 text-gray-400">
+        ${data.attendance}
+      </span>
+    </div>
+    <p class="text-sm text-gray-600 leading-relaxed italic ml-10">"${data.message}"</p>
+    <div class="mt-3 ml-10 flex items-center gap-2 text-[10px] text-gray-400">
+       <i class="fa-regular fa-clock"></i>
+       <span>${data.time || 'Baru saja'}</span>
     </div>
   `;
-
-  commentList.insertAdjacentHTML('beforeend', commentHTML);
+  
+  // Menggunakan prepend agar komentar terbaru muncul paling atas
+  list.prepend(div);
 }
 
 // ===== FUNGSI TAMBAH DATA =====
