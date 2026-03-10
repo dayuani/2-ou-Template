@@ -97,28 +97,25 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ===== FUNGSI LOAD DATA =====
 async function loadComments() {
   const commentList = document.getElementById("commentList");
-  if (!commentList) return; // Keamanan jika elemen belum ada
+  if (!commentList) return;
 
   const { data, error } = await db
     .from("comments")
     .select("*")
-    .order("created_at", { ascending: false }); // Terbaru di atas
+    .order("created_at", { ascending: false }); // Ambil terbaru dari database
 
   if (error) {
     console.error("Gagal mengambil data:", error);
-    commentList.innerHTML = `<p class="text-red-400 text-center text-xs">Gagal memuat pesan.</p>`;
     return;
   }
 
-  // Bersihkan loading state
-  commentList.innerHTML = "";
+  commentList.innerHTML = ""; // Bersihkan list
 
   if (data && data.length > 0) {
     data.forEach((comment) => {
-      renderComment(comment);
+      // Gunakan fungsi render biasa
+      renderComment(comment); 
     });
-  } else {
-    commentList.innerHTML = `<p class="text-center text-gray-400 text-sm py-10">Belum ada ucapan. Jadilah yang pertama!</p>`;
   }
 }
 
@@ -128,70 +125,54 @@ function renderComment(data) {
   if (!list) return;
 
   const div = document.createElement("div");
-  div.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm mb-4 animate-fade-in";
+  div.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm mb-4";
 
   div.innerHTML = `
     <div class="flex justify-between items-center mb-3">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-[#1C0770]/10 flex items-center justify-center text-[#1C0770] text-xs font-bold">
-          ${data.name ? data.name.charAt(0).toUpperCase() : "?"}
-        </div>
         <h4 class="font-bold text-[#1C0770] text-sm">${data.name}</h4>
       </div>
-      <span class="text-[10px] font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full border border-gray-100 text-gray-400">
+      <span class="text-[10px] bg-white px-3 py-1 rounded-full border text-gray-400">
         ${data.attendance}
       </span>
     </div>
-    <p class="text-sm text-gray-600 leading-relaxed italic ml-10">"${data.message}"</p>
-    <div class="mt-3 ml-10 flex items-center gap-2 text-[10px] text-gray-400">
-       <i class="fa-regular fa-clock"></i>
-       <span>${data.time || "Baru saja"}</span>
-    </div>
+    <p class="text-sm text-gray-600 italic ml-10">"${data.message}"</p>
   `;
 
-  // GUNAKAN appendChild
-  // Karena data pertama dari data.forEach sudah yang paling baru (hasil order ascending: false)
-  list.appendChild(div);
+  // PAKAI appendChild karena data dari loadComments sudah urut terbaru -> terlama
+  list.appendChild(div); 
 }
 
 // ===== FUNGSI TAMBAH DATA =====
 async function addWish(event) {
   event.preventDefault();
-
-  const submitBtn = event.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
-
-  const name = document.getElementById("name").value;
-  const message = document.getElementById("message").value;
-  const attendance = document.querySelector('input[name="attendance"]:checked')?.value || "Hadir";
-
-  // Kita buat objek data lokal untuk render instan
-  const commentData = { 
-    name, 
-    message, 
-    attendance, 
-    time: "Baru saja" // Label sementara sebelum di-refresh dari DB
-  };
+  // ... (ambil data name, message, attendance) ...
 
   const { error } = await db
     .from("comments")
     .insert([{ name, message, attendance }]);
 
-  if (error) {
-    alert("Gagal mengirim: " + error.message);
-  } else {
+  if (!error) {
     event.target.reset();
-    
-    // OPSI 1: Render manual ke posisi paling atas (Instan)
-    renderCommentAtTop(commentData); 
-    
-    // OPSI 2: Tetap panggil loadComments untuk sinkronisasi waktu asli dari DB
-    // await loadComments(); 
-  }
 
-  submitBtn.disabled = false;
-  submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Ucapan';
+    // BUAT ELEMEN BARU SECARA INSTAN
+    const list = document.getElementById("commentList");
+    const newDiv = document.createElement("div");
+    newDiv.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm mb-4 animate-fade-in";
+    newDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="font-bold text-[#1C0770] text-sm">${name}</h4>
+          <span class="text-[10px] bg-white px-3 py-1 rounded-full border text-gray-400">${attendance}</span>
+        </div>
+        <p class="text-sm text-gray-600 italic ml-10">"${message}"</p>
+    `;
+
+    // PAKAI prepend DI SINI agar langsung muncul di paling atas layar user
+    list.prepend(newDiv); 
+    
+    // Opsional: jalankan loadComments setelah beberapa saat untuk sinkronisasi waktu asli
+    // setTimeout(loadComments, 2000);
+  }
 }
 
 // Fungsi pembantu agar bisa menaruh di atas khusus saat input baru
