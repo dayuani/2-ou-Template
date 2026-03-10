@@ -1,5 +1,3 @@
-
-
 // ===== GLOBAL =====
 const music = document.getElementById("bg-music");
 const toggle = document.getElementById("musicToggle");
@@ -50,45 +48,48 @@ function updateCountdown() {
 
   if (distance < 0) return;
 
-  document.getElementById("days").innerText =
-    Math.floor(distance / (1000 * 60 * 60 * 24));
+  document.getElementById("days").innerText = Math.floor(
+    distance / (1000 * 60 * 60 * 24),
+  );
 
-  document.getElementById("hours").innerText =
-    Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  document.getElementById("hours").innerText = Math.floor(
+    (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+  );
 
-  document.getElementById("minutes").innerText =
-    Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  document.getElementById("minutes").innerText = Math.floor(
+    (distance % (1000 * 60 * 60)) / (1000 * 60),
+  );
 
-  document.getElementById("seconds").innerText =
-    Math.floor((distance % (1000 * 60)) / 1000);
+  document.getElementById("seconds").innerText = Math.floor(
+    (distance % (1000 * 60)) / 1000,
+  );
 }
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
 // Fungsi Buka/Tutup Modal
-  function toggleModal(id) {
-    const modal = document.getElementById(id);
-    if (modal.classList.contains('hidden')) {
-      modal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden'; // Kunci scroll saat modal buka
-    } else {
-      modal.classList.add('hidden');
-      document.body.style.overflow = 'auto'; // Aktifkan scroll kembali
-    }
+function toggleModal(id) {
+  const modal = document.getElementById(id);
+  if (modal.classList.contains("hidden")) {
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // Kunci scroll saat modal buka
+  } else {
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto"; // Aktifkan scroll kembali
   }
+}
 
-  // Fungsi Salin Nomor Rekening
-  function copyText(elementId) {
-    const text = document.getElementById(elementId).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Nomor Rekening berhasil disalin: " + text);
-    });
-  }
-
+// Fungsi Salin Nomor Rekening
+function copyText(elementId) {
+  const text = document.getElementById(elementId).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Nomor Rekening berhasil disalin: " + text);
+  });
+}
 
 // ===== KONFIGURASI SUPABASE =====
-const SUPABASE_URL = "https://ecpzvlbrulxbhtwqqmub.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_jx0p00VOq4hKOkt1lcAxUQ_sbDojSJR";
+const SUPABASE_URL = "https://osytfkzawpftsktljurs.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_HK7k7M1TH9uWsnycuXZTmQ_5b-vsm1d";
 
 // Inisialisasi client
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -128,8 +129,9 @@ function renderComment(data) {
 
   const div = document.createElement("div");
   // Desain bubble chat yang lebih bersih untuk tema putih
-  div.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm animate-fade-in";
-  
+  div.className =
+    "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm animate-fade-in";
+
   div.innerHTML = `
     <div class="flex justify-between items-center mb-3">
       <div class="flex items-center gap-2">
@@ -145,10 +147,10 @@ function renderComment(data) {
     <p class="text-sm text-gray-600 leading-relaxed italic ml-10">"${data.message}"</p>
     <div class="mt-3 ml-10 flex items-center gap-2 text-[10px] text-gray-400">
        <i class="fa-regular fa-clock"></i>
-       <span>${data.time || 'Baru saja'}</span>
+       <span>${data.time || "Baru saja"}</span>
     </div>
   `;
-  
+
   // Menggunakan prepend agar komentar terbaru muncul paling atas
   list.prepend(div);
 }
@@ -156,14 +158,17 @@ function renderComment(data) {
 // ===== FUNGSI TAMBAH DATA =====
 async function addWish(event) {
   event.preventDefault();
-  
+
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
+  submitBtn.innerHTML =
+    '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
 
   const name = document.getElementById("name").value;
   const message = document.getElementById("message").value;
-  const attendance = document.querySelector('input[name="attendance"]:checked')?.value || "Hadir";
+  const attendance =
+    document.querySelector('input[name="attendance"]:checked')?.value ||
+    "Hadir";
 
   const { error } = await db
     .from("comments")
