@@ -128,15 +128,13 @@ function renderComment(data) {
   if (!list) return;
 
   const div = document.createElement("div");
-  // Desain bubble chat yang lebih bersih untuk tema putih
-  div.className =
-    "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm animate-fade-in";
+  div.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm mb-4 animate-fade-in";
 
   div.innerHTML = `
     <div class="flex justify-between items-center mb-3">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-[#1C0770]/10 flex items-center justify-center text-[#1C0770] text-xs font-bold">
-          ${data.name.charAt(0).toUpperCase()}
+          ${data.name ? data.name.charAt(0).toUpperCase() : "?"}
         </div>
         <h4 class="font-bold text-[#1C0770] text-sm">${data.name}</h4>
       </div>
@@ -151,8 +149,9 @@ function renderComment(data) {
     </div>
   `;
 
-  // Menggunakan prepend agar komentar terbaru muncul paling atas
-  list.prepend(div);
+  // GUNAKAN appendChild
+  // Karena data pertama dari data.forEach sudah yang paling baru (hasil order ascending: false)
+  list.appendChild(div);
 }
 
 // ===== FUNGSI TAMBAH DATA =====
@@ -161,14 +160,19 @@ async function addWish(event) {
 
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
-  submitBtn.innerHTML =
-    '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
+  submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
 
   const name = document.getElementById("name").value;
   const message = document.getElementById("message").value;
-  const attendance =
-    document.querySelector('input[name="attendance"]:checked')?.value ||
-    "Hadir";
+  const attendance = document.querySelector('input[name="attendance"]:checked')?.value || "Hadir";
+
+  // Kita buat objek data lokal untuk render instan
+  const commentData = { 
+    name, 
+    message, 
+    attendance, 
+    time: "Baru saja" // Label sementara sebelum di-refresh dari DB
+  };
 
   const { error } = await db
     .from("comments")
@@ -178,11 +182,29 @@ async function addWish(event) {
     alert("Gagal mengirim: " + error.message);
   } else {
     event.target.reset();
-    await loadComments(); // Refresh daftar
+    
+    // OPSI 1: Render manual ke posisi paling atas (Instan)
+    renderCommentAtTop(commentData); 
+    
+    // OPSI 2: Tetap panggil loadComments untuk sinkronisasi waktu asli dari DB
+    // await loadComments(); 
   }
 
   submitBtn.disabled = false;
   submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Ucapan';
+}
+
+// Fungsi pembantu agar bisa menaruh di atas khusus saat input baru
+function renderCommentAtTop(data) {
+  const list = document.getElementById("commentList");
+  if (!list) return;
+
+  // Hapus pesan "Belum ada ucapan" jika ini komentar pertama
+  if (list.innerText.includes("Belum ada ucapan")) {
+      list.innerHTML = "";
+  }
+
+  renderComment(data); // Memanggil fungsi render yang sudah kamu buat
 }
 
 // Pastikan dipanggil setelah semua HTML siap
