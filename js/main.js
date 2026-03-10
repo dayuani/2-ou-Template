@@ -123,7 +123,8 @@ async function loadComments() {
 }
 
 // ===== FUNGSI RENDER KE HTML =====
-function renderComment(data) {
+// MODIFIKASI FUNGSI RENDER
+function renderComment(data, isNew = false) {
   const list = document.getElementById("commentList");
   if (!list) return;
 
@@ -149,9 +150,13 @@ function renderComment(data) {
     </div>
   `;
 
-  // GUNAKAN appendChild
-  // Karena data pertama dari data.forEach sudah yang paling baru (hasil order ascending: false)
-  list.appendChild(div);
+  // JIKA isNew bernilai true (dari fungsi addWish), taruh di ATAS
+  // JIKA false (dari load awal), taruh di BAWAH karena datanya sudah urut dari Supabase
+  if (isNew) {
+    list.prepend(div); 
+  } else {
+    list.appendChild(div);
+  }
 }
 
 // ===== FUNGSI TAMBAH DATA =====
