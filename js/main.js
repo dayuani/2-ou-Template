@@ -128,14 +128,25 @@ function renderComment(data) {
   const div = document.createElement("div");
   
   // Styling card komentar (menyesuaikan dengan tema gelap kamu)
-  div.className = "bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 mb-3";
+  ddiv.className = "bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 mb-3 animate-fade-in";
+  
   div.innerHTML = `
     <div class="flex justify-between items-start mb-2">
-      <h4 class="font-bold text-indigo-300 text-sm">${data.name}</h4>
-      <span class="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-300">${data.attendance}</span>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
+          ${data.name ? data.name.charAt(0).toUpperCase() : "?"}
+        </div>
+        <h4 class="font-bold text-indigo-300 text-sm">${data.name}</h4>
+      </div>
+      <span class="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-300 border border-white/5">
+        ${data.attendance}
+      </span>
     </div>
-    <p class="text-sm text-gray-200 leading-relaxed">${data.message}</p>
-    <small class="text-[9px] text-gray-500 mt-2 block">${data.time || ''}</small>
+    <p class="text-sm text-gray-200 leading-relaxed ml-9 italic">"${data.message}"</p>
+    <div class="mt-2 ml-9 flex items-center gap-2">
+      <i class="fa-regular fa-clock text-[9px] text-gray-500"></i>
+      <small class="text-[9px] text-gray-500 block">${data.time || 'Baru saja'}</small>
+    </div>
   `;
   
   // Menambahkan komentar terbaru di paling atas
