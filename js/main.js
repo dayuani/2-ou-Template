@@ -123,40 +123,23 @@ async function loadComments() {
 }
 
 // ===== FUNGSI RENDER KE HTML =====
-// MODIFIKASI FUNGSI RENDER
-function renderComment(data, isNew = false) {
+function renderComment(data) {
   const list = document.getElementById("commentList");
-  if (!list) return;
-
   const div = document.createElement("div");
-  div.className = "p-5 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm mb-4 animate-fade-in";
-
+  
+  // Styling card komentar (menyesuaikan dengan tema gelap kamu)
+  div.className = "bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 mb-3";
   div.innerHTML = `
-    <div class="flex justify-between items-center mb-3">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-[#1C0770]/10 flex items-center justify-center text-[#1C0770] text-xs font-bold">
-          ${data.name ? data.name.charAt(0).toUpperCase() : "?"}
-        </div>
-        <h4 class="font-bold text-[#1C0770] text-sm">${data.name}</h4>
-      </div>
-      <span class="text-[10px] font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full border border-gray-100 text-gray-400">
-        ${data.attendance}
-      </span>
+    <div class="flex justify-between items-start mb-2">
+      <h4 class="font-bold text-indigo-300 text-sm">${data.name}</h4>
+      <span class="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-300">${data.attendance}</span>
     </div>
-    <p class="text-sm text-gray-600 leading-relaxed italic ml-10">"${data.message}"</p>
-    <div class="mt-3 ml-10 flex items-center gap-2 text-[10px] text-gray-400">
-       <i class="fa-regular fa-clock"></i>
-       <span>${data.time || "Baru saja"}</span>
-    </div>
+    <p class="text-sm text-gray-200 leading-relaxed">${data.message}</p>
+    <small class="text-[9px] text-gray-500 mt-2 block">${data.time || ''}</small>
   `;
-
-  // JIKA isNew bernilai true (dari fungsi addWish), taruh di ATAS
-  // JIKA false (dari load awal), taruh di BAWAH karena datanya sudah urut dari Supabase
-  if (isNew) {
-    list.prepend(div); 
-  } else {
-    list.appendChild(div);
-  }
+  
+  // Menambahkan komentar terbaru di paling atas
+  list.prepend(div);
 }
 
 // ===== FUNGSI TAMBAH DATA =====
