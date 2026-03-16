@@ -88,8 +88,8 @@ function copyText(elementId) {
 }
 
 // ===== KONFIGURASI SUPABASE =====
-const SUPABASE_URL = "https://osytfkzawpftsktljurs.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_HK7k7M1TH9uWsnycuXZTmQ_5b-vsm1d";
+const SUPABASE_URL = "https://ecpzvlbrulxbhtwqqmub.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_jx0p00VOq4hKOkt1lcAxUQ_sbDojSJR";
 
 // Inisialisasi client
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
